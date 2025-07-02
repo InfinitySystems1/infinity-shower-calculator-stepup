@@ -182,7 +182,7 @@ function drawChart() {
         color: '#131E53'
       }
     },
-    chartArea: { left: 100, top: 50, width: '80%', height: '70%' },
+    chartArea: { left: 100, top: 50, width: '70%', height: '70%' },
     bars: 'horizontal',
     hAxis: {
       baseline: 0,
@@ -200,6 +200,7 @@ function drawChart() {
       duration: 3000,
       easing: 'out'
     },
+    legend: { position: 'none' },
 
   };
 
@@ -323,7 +324,7 @@ function drawChart() {
       <button onclick="drawChart()">Update Chart</button>
     </div>
     <div class="chart" style="border: 1px solid #DBDBDB; border-radius: 2px; padding: 28px; margin: 20px; overflow-x: auto;">
-      <h2 style="font-family: Canela, serif; font-size: 28px; color: #131E53; text-align: center; white-space: nowrap; margin-bottom: 16px;">Water Conservation Calculator</h2>
+      <h2 style="font-family: Canela, serif; font-size: 28px; color: #131E53; text-align: center; white-space: nowrap; margin-bottom: 16px;">Days Off-grid</h2>
       <div id="days-countup" style="text-align:center; margin: 40px 0;">
     <div style="display: flex; justify-content: center; gap: 40px; flex-wrap: wrap;">
       <div style="text-align: center;">
@@ -339,7 +340,9 @@ function drawChart() {
       </div>
     </div>
     </div>
-      <div id="chart_div" style="min-width: 100%;"></div>
+      <div style="width: 100%; overflow-x: auto;">
+  <div id="chart_div" style="min-width: 600px;"></div>
+</div>
     </div>
   </div>
   <div id="insights"></div>
