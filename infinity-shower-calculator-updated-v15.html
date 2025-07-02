@@ -1,0 +1,348 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>The Infinity Shower Calculator</title>
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<style>
+  @font-face {
+    font-family: 'Canela';
+    src: url('Canela-Light.otf') format('opentype');
+    font-weight: 300;
+    font-style: normal;
+  }
+
+  :root {
+    --primary-color: #1A4D8C;
+    --text-color: #131E53;
+    --bg-color: #F9F9F9;
+    --input-bg: #ffffff;
+    --font-body: 'Inter', sans-serif;
+    --font-title: 'Canela', serif;
+  }
+
+  body {
+    margin: 0;
+    padding: 40px 20px;
+    font-family: var(--font-body);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: auto;
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  }
+
+  .flex-wrap {
+    display: flex;
+    gap: 40px;
+    flex-direction: row;
+  }
+
+  .inputs {
+    flex: 0 0 30%;
+  }
+  .chart {
+    flex: 0 0 50%;
+    min-width: 300px;
+  }
+
+  .input-group {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  label {
+    text-align: left;
+    width: 100%;
+    display: block;
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 6px;
+    font-family: var(--font-body);
+  }
+
+  input {
+    width: 100%;
+    max-width: 300px;
+    padding: 10px 12px;
+    font-size: 16px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    border: 1px solid #E7E7E7;
+    border-radius: 6px;
+    background-color: var(--input-bg);
+  }
+
+  button {
+    margin-top: 20px;
+    width: 100%;
+    background-color: #33CCC4;
+    color: white;
+    padding: 12px;
+    font-size: 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  #chart_div {
+    margin-top: 20px;
+    height: 400px;
+  }
+
+  #insights {
+    margin-top: 32px;
+    padding: 16px;
+    background-color: #fff;
+    border-radius: 8px;
+    font-size: 15px;
+    line-height: 1.5;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+  }
+
+  .google-visualization-chart-title {
+    font-family: var(--font-title) !important;
+    font-weight: 300 !important;
+  }
+
+  @media screen and (max-width: 768px) {
+    .flex-wrap {
+      flex-direction: column;
+    }
+  }
+</style>
+<script>
+function animateCountUp(id, endValue) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  let start = 0;
+  const duration = 3000;
+  const increment = endValue / (duration / 16);
+  function update() {
+    start += increment;
+    if (start >= endValue) {
+      el.innerText = endValue.toFixed(1);
+    } else {
+      el.innerText = start.toFixed(1);
+      requestAnimationFrame(update);
+    }
+  }
+  update();
+}
+
+google.charts.load('current', {packages: ['corechart']});
+google.charts.setOnLoadCallback(drawChart);
+
+function drawChart() {
+  let tankSize = parseFloat(document.getElementById('tank').value);
+  let people = parseInt(document.getElementById('people').value);
+  let showers = parseInt(document.getElementById('showers').value);
+  let minutes = parseInt(document.getElementById('minutes').value);
+  let dailyOtherUse = parseFloat(document.getElementById('other').value);
+
+  let traditionalShowerUse = people * showers * minutes * 2.5;
+  let traditionalOtherUse = people * dailyOtherUse * 7;
+  let traditionalTotal = traditionalShowerUse + traditionalOtherUse;
+
+  let infinityShowerUse = people * showers * 1;
+  let infinityOtherUse = traditionalOtherUse;
+  let infinityTotal = infinityShowerUse + infinityOtherUse;
+
+  let tradDays = (tankSize / traditionalTotal) * 7;
+  let infinityDays = (tankSize / infinityTotal) * 7;
+
+  var data = google.visualization.arrayToDataTable([
+    ['Shower Type', 'Days Off-Grid', { role: 'annotation' }],
+    ['Traditional Shower', tradDays, `${tradDays.toFixed(1)} days`],
+    ['The Infinity Shower', infinityDays, `${infinityDays.toFixed(1)} days`]
+  ]);
+
+  let maxDays = Math.max(tradDays, infinityDays);
+  let hAxisMax = maxDays * 1.25;
+
+  var options = {
+    colors: ['#C3EBE9', '#33CCC4'],
+    annotations: {
+      alwaysOutside: true,
+      textStyle: {
+        fontSize: 14,
+        color: '#131E53'
+      }
+    },
+    chartArea: { left: 100, top: 50, width: '80%', height: '70%' },
+    bars: 'horizontal',
+    hAxis: {
+      baseline: 0,
+      viewWindow: { max: hAxisMax },
+      baselineColor: '#131E53',
+      gridlines: { color: '#E7E7E7' },
+      textStyle: { color: '#131E53' }
+    },
+    vAxis: {
+      textStyle: { color: '#131E53' }
+    },
+
+    animation: {
+      startup: true,
+      duration: 3000,
+      easing: 'out'
+    },
+
+  };
+
+  var chart = new google.visualization.BarChart(document.getElementById('chart_div'));
+  chart.draw(data, options);
+
+  let ratio = (infinityDays / tradDays).toFixed(1);
+
+  document.getElementById('days-countup').innerHTML = `
+  <div style="display: flex; justify-content: center; align-items: center; gap: 40px; flex-wrap: wrap;">
+    <div style="text-align: center;">
+      <div style="font-size: 48px; font-weight: bold; color: #BABABA;"><span id="trad-count">0</span> days</div>
+      <div style="font-size: 18px; margin-top: 5px;">Traditional Shower</div>
+    </div>
+    <div style="font-size: 28px; font-weight: bold; color: #131E53;">VS</div>
+    <div style="text-align: center;">
+      <div style="font-size: 48px; font-weight: bold; color: #33CCC4;"><span id="infinity-count">0</span> days</div>
+      <div style="font-size: 18px; margin-top: 5px;">The Infinity Shower</div>
+    </div>
+  </div>`;
+  animateCountUp("trad-count", tradDays);
+  animateCountUp("infinity-count", infinityDays);
+
+  document.getElementById('insights').innerHTML = `
+    <h3 style="margin-bottom: 10px;">Water Efficiency & Off-Grid Performance</h3>
+    <p><strong>Daily Water Use:</strong><br>
+    Traditional: ${(traditionalTotal / 7).toFixed(1)} gallons<br>
+    The Infinity Shower: ${(infinityTotal / 7).toFixed(1)} gallons</p>
+
+    <p><strong>Estimated Days Off-Grid:</strong><br>
+    Traditional Shower: ~${tradDays.toFixed(1)} days<br>
+    The Infinity Shower: ~${infinityDays.toFixed(1)} days</p>
+
+    <p><strong>Insight:</strong><br>
+    The Infinity Shower gives you <strong>${ratio}× more time</strong> off-grid using the same water tank.</p>
+  `;
+}
+</script>
+</head>
+<body>
+<div class="container" style="padding: 0;">
+  <div class="flex-wrap">
+    <div class="inputs" style="border: 1px solid #DBDBDB; border-radius: 2px; padding: 40px; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; margin: 20px;">
+      <div class="input-group">
+        <label for="tank">WATER TANK SIZE (in gallons)</label>
+        <input id="tank" type="number" value="50"/>
+      </div>
+      <div class="input-group">
+        <label for="people">NUMBER OF PEOPLE</label>
+        <input id="people" type="number" value="1"/>
+      </div>
+      <div class="input-group">
+        <label for="showers">SHOWERS PER WEEK (per person)</label>
+        <input id="showers" type="number" value="7"/>
+      </div>
+      <div class="input-group">
+        <label for="minutes">SHOWER TIME (in minutes)</label>
+        <input id="minutes" type="number" value="8"/>
+      </div>
+      <div class="input-group">
+        <label for="other">
+  OTHER WATER CONSUMPTION PER DAY PER PERSON (in gallons)
+  <span class="tooltip-icon">&#9432;
+    <span class="tooltip-text">
+      Drinking water, washing dishes, washing hands, doing laundry, cleaning gear, flushing toilets
+    </span>
+  </span>
+</label>
+<input id="other" type="number" value="1"/>
+
+<style>
+.tooltip-icon {
+  position: relative;
+  display: inline-block;
+  margin-left: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  color: #333;
+}
+
+.tooltip-text {
+  visibility: hidden;
+  width: 260px;
+  background-color: #f9f9f9;
+  color: #333;
+  text-align: left;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 10px;
+  position: absolute;
+  z-index: 1;
+  top: 24px;
+  left: 0;
+  box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
+  font-size: 13px;
+}
+
+.tooltip-icon:hover .tooltip-text {
+  visibility: visible;
+}
+</style>
+<script>
+  // JavaScript to toggle tooltip visibility on click
+  document.addEventListener('DOMContentLoaded', function () {
+    const tooltipSpan = document.querySelector('label[for="other"] span span + span');
+    const icon = document.querySelector('label[for="other"] span');
+
+    icon.addEventListener('click', function () {
+      const isVisible = tooltipSpan.style.visibility === 'visible';
+      tooltipSpan.style.visibility = isVisible ? 'hidden' : 'visible';
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!icon.contains(e.target)) {
+        tooltipSpan.style.visibility = 'hidden';
+      }
+    });
+  });
+</script>
+      </div>
+      <button onclick="drawChart()">Update Chart</button>
+    </div>
+    <div class="chart" style="border: 1px solid #DBDBDB; border-radius: 2px; padding: 28px; margin: 20px; overflow-x: auto;">
+      <h2 style="font-family: Canela, serif; font-size: 28px; color: #131E53; text-align: center; white-space: nowrap; margin-bottom: 16px;">Water Conservation Calculator</h2>
+      <div id="days-countup" style="text-align:center; margin: 40px 0;">
+    <div style="display: flex; justify-content: center; gap: 40px; flex-wrap: wrap;">
+      <div style="text-align: center;">
+        <div style="font-size: 48px; font-weight: bold; color: #BABABA;"><span id="trad-count">0</span> days</div>
+        <div style="font-size: 18px; margin-top: 5px;">Traditional Shower</div>
+      </div>
+      
+<div style="font-size: 24px; font-weight: bold; color: #131E53; align-self: center; margin: 0 10px;">VS</div>
+
+      <div style="text-align: center;">
+        <div style="font-size: 48px; font-weight: bold; color: #33CCC4;"><span id="infinity-count">0</span> days</div>
+        <div style="font-size: 18px; margin-top: 5px;">The Infinity Shower</div>
+      </div>
+    </div>
+    </div>
+      <div id="chart_div" style="min-width: 100%;"></div>
+    </div>
+  </div>
+  <div id="insights"></div>
+</div>
+</body>
+</html>
